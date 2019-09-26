@@ -6,10 +6,11 @@ app = Flask(__name__)
 def index():
     """Return homepage."""
 # OUR MOCK ARRAY OF PROJECTS
-playlists = [
-    { 'title': 'Cat Videos', 'description': 'Cats acting weird' },
-    { 'title': '80\'s Music', 'description': 'Don\'t stop believing!' }
-]
+    playlists = [
+        { 'title': 'Cat Videos', 'description': 'Cats acting weird' },
+        { 'title': '80\'s Music', 'description': 'Don\'t stop believing!' }
+    ]
+    return render_template('home.html')
 
 @app.route('/playlists')
 def playlists_index():
