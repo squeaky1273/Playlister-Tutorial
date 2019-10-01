@@ -2,29 +2,28 @@ from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import os
-
+from datetime import datetime
+"""
 client = MongoClient()
 db = client.Playlister
-playlists = db.playlists
-
+"""
 host = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/Playlister')
 client = MongoClient(host=f'{host}?retryWrites=false')
 db = client.get_default_database()
 playlists = db.playlists
-
-db = client.get_default_database()
-playlists = db.playlists
 comments = db.comments
-
-from datetime import datetime
 
 app = Flask(__name__)
 
 
 # OUR MOCK ARRAY OF PROJECTS
 #playlists = [
-#    { 'title': 'Cat Videos', 'description': 'Cats acting weird' },
-#    { 'title': '80\'s Music', 'description': 'Don\'t stop believing!' }
+    #{ 'title': 'Cat Videos', 'description': 'Cats acting weird' },
+    #{ 'title': '80\'s Music', 'description': 'Don\'t stop believing!' }
+#]
+#playlists = [
+#   { 'title': 'Great Playlist' },
+#   { 'title': 'Next Playlist' }
 #]
 
 @app.route('/')
@@ -62,6 +61,19 @@ def playlists_edit(playlist_id):
     """Show the edit form for a playlist."""
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
     return render_template('playlists_edit.html', playlist=playlist, title='Edit Playlist')
+
+@app.route('/playlists/<playlist_id>', methods=['POST'])
+def playlists_update(playlist_id):
+    """Submit an edited playlist."""
+    updated_playlist = {
+        'title': request.form.get('title'),
+        'description': request.form.get('description'),
+        'videos': request.form.get('videos').split()
+    }
+    playlists.update_one(
+        {'_id': ObjectId(playlist_id)},
+        {'$set': updated_playlist})
+    return redirect(url_for('playlists_show', playlist_id=playlist_id))
 
 @app.route('/playlists/<playlist_id>/delete', methods=['POST'])
 def playlists_delete(playlist_id):
